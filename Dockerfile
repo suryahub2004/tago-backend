@@ -49,4 +49,4 @@ USER nestjs
 EXPOSE 4000
 
 # Run the API
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
