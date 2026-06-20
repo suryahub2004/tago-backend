@@ -15,7 +15,7 @@ async function bootstrap() {
       if (
         !origin ||
         origin.match(/^http:\/\/localhost:\d+$/) ||
-        origin === process.env.NEXT_PUBLIC_APP_URL
+        origin === process.env.WEB_URL
       ) {
         callback(null, true);
       } else {
