@@ -100,8 +100,8 @@ export declare class AdminController {
             createdAt: Date;
             updatedAt: Date;
             userId: string;
-            totalAmount: number;
             status: import(".prisma/client").$Enums.OrderStatus;
+            totalAmount: number;
             discountAmount: number;
             promoCode: string | null;
             shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -114,18 +114,19 @@ export declare class AdminController {
         devices: ({
             user: {
                 name: string;
-            };
+            } | null;
         } & {
             id: string;
             isActive: boolean;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
+            userId: string | null;
             deviceType: import(".prisma/client").$Enums.DeviceType;
             firmwareVersion: string | null;
             deviceSerial: string;
             deviceName: string | null;
             batteryLevel: number | null;
+            pendingUpdate: boolean;
             lastSyncAt: Date | null;
             settings: import("@prisma/client/runtime/library").JsonValue | null;
             pairedAt: Date;

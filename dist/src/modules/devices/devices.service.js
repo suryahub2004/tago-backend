@@ -71,6 +71,31 @@ let DevicesService = class DevicesService {
             data: { isActive: false },
         });
     }
+    async adminUnpairDevice(deviceId) {
+        const device = await this.prisma.device.findUnique({
+            where: { id: deviceId },
+        });
+        if (!device)
+            throw new common_1.NotFoundException('Device not found');
+        return this.prisma.device.update({
+            where: { id: deviceId },
+            data: {
+                isActive: false,
+                userId: null,
+            },
+        });
+    }
+    async adminQueueFirmwareUpdate(deviceId) {
+        const device = await this.prisma.device.findUnique({
+            where: { id: deviceId },
+        });
+        if (!device)
+            throw new common_1.NotFoundException('Device not found');
+        return this.prisma.device.update({
+            where: { id: deviceId },
+            data: { pendingUpdate: true },
+        });
+    }
     async getMyDevices(userId) {
         return this.prisma.device.findMany({
             where: { userId, isActive: true },
@@ -218,6 +243,13 @@ let DevicesService = class DevicesService {
         });
         if (!device)
             throw new common_1.NotFoundException('Device not found');
+        const pendingUpdate = device.pendingUpdate;
+        if (pendingUpdate) {
+            await this.prisma.device.update({
+                where: { id: device.id },
+                data: { pendingUpdate: false },
+            });
+        }
         const latest = await this.prisma.firmwareVersion.findFirst({
             where: { deviceType: device.deviceType, isLatest: true },
             orderBy: { releasedAt: 'desc' },
@@ -225,13 +257,13 @@ let DevicesService = class DevicesService {
         if (!latest) {
             return {
                 currentVersion: device.firmwareVersion,
-                hasUpdate: false,
+                hasUpdate: pendingUpdate,
             };
         }
         return {
             currentVersion: device.firmwareVersion,
             latestVersion: latest.version,
-            hasUpdate: device.firmwareVersion !== latest.version,
+            hasUpdate: pendingUpdate || device.firmwareVersion !== latest.version,
             releaseNotes: latest.releaseNotes,
             releaseDate: latest.releasedAt,
         };

@@ -96,6 +96,18 @@ export class DevicesController {
 
   // --- ADMIN ROUTES ---
   @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Delete('admin/:id/unpair')
+  adminUnpairDevice(@Param('id') deviceId: string) {
+    return this.devicesService.adminUnpairDevice(deviceId);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
+  @Post('admin/:id/firmware-update')
+  adminQueueFirmwareUpdate(@Param('id') deviceId: string) {
+    return this.devicesService.adminQueueFirmwareUpdate(deviceId);
+  }
+
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @Get('admin/analytics')
   getAdminDevicesAnalytics() {
     return this.devicesService.getAdminDevicesAnalytics();

@@ -43,39 +43,39 @@ enum TicketStatus {
 }
 
 model User {
-  id                String          @id @default(uuid())
-  email             String          @unique
-  passwordHash      String?
-  name              String
-  avatarUrl         String?
-  role              UserRole        @default(USER)
-  isActive          Boolean         @default(true)
-  emailVerified     Boolean         @default(false)
-  appleHealthToken  String?
-  googleFitToken    String?
-  fcmToken          String?
-  phone             String?         // mandatory for orders — collected at registration
-  lastActiveAt      DateTime?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id               String    @id @default(uuid())
+  email            String    @unique
+  passwordHash     String?
+  name             String
+  avatarUrl        String?
+  role             UserRole  @default(USER)
+  isActive         Boolean   @default(true)
+  emailVerified    Boolean   @default(false)
+  appleHealthToken String?
+  googleFitToken   String?
+  fcmToken         String?
+  phone            String? // mandatory for orders — collected at registration
+  lastActiveAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  healthProfile     HealthProfile?
-  devices           Device[]
-  orders            Order[]
-  alerts            Alert[]
-  notifications     Notification[]
-  familyGroupOwned  FamilyGroup[]   @relation("FamilyOwner")
-  familyMemberships FamilyMember[]  @relation("FamilyMemberUser")
-  kafkaEvents       KafkaEventLog[]
-  aiInteractions    AiInsightInteraction[]
-  aiInsights        AiInsight[]
-  aiInsightCache    AiInsightCache?
-  aiQuestions       AiQuestion[]
-  workoutPlans      WorkoutPlan[]
-  workoutLogs       WorkoutLog[]
+  healthProfile      HealthProfile?
+  devices            Device[]
+  orders             Order[]
+  alerts             Alert[]
+  notifications      Notification[]
+  familyGroupOwned   FamilyGroup[]          @relation("FamilyOwner")
+  familyMemberships  FamilyMember[]         @relation("FamilyMemberUser")
+  kafkaEvents        KafkaEventLog[]
+  aiInteractions     AiInsightInteraction[]
+  aiInsights         AiInsight[]
+  aiInsightCache     AiInsightCache?
+  aiQuestions        AiQuestion[]
+  workoutPlans       WorkoutPlan[]
+  workoutLogs        WorkoutLog[]
   meditationSessions MeditationSession[]
-  broadcastsSent    BroadcastMessage[]
-  supportTickets    SupportTicket[]
+  broadcastsSent     BroadcastMessage[]
+  supportTickets     SupportTicket[]
 
   @@index([email])
   @@index([role])
@@ -84,44 +84,45 @@ model User {
 }
 
 model HealthProfile {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  age             Int?
-  dateOfBirth     DateTime?
-  gender          String?
-  height          Float?    // cm
-  weight          Float?    // kg
-  bloodType       String?
-  fitnessLevel    String?
-  fitnessGoal     String?
-  sleepGoal       Float?    // hours
-  stepsGoal       Int?      @default(10000)
-  caloriesGoal    Int?      @default(500)
-  workoutDays     Int?
-  preferredWorkouts String[]
-  dietType        String?
-  alcoholFrequency String?
-  smokingStatus   String?
-  conditions      String[]
-  emergencyContact Json?
-  onboardingComplete Boolean @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int?
+  dateOfBirth        DateTime?
+  gender             String?
+  height             Float? // cm
+  weight             Float? // kg
+  bloodType          String?
+  fitnessLevel       String?
+  fitnessGoal        String?
+  sleepGoal          Float? // hours
+  stepsGoal          Int?      @default(10000)
+  caloriesGoal       Int?      @default(500)
+  workoutDays        Int?
+  preferredWorkouts  String[]
+  dietType           String?
+  alcoholFrequency   String?
+  smokingStatus      String?
+  conditions         String[]
+  emergencyContact   Json?
+  onboardingComplete Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   @@map("health_profiles")
 }
 
 model Device {
   id              String     @id @default(uuid())
-  userId          String
-  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   deviceSerial    String     @unique
   deviceType      DeviceType
   deviceName      String?
   firmwareVersion String?
   batteryLevel    Int?
   isActive        Boolean    @default(true)
+  pendingUpdate   Boolean    @default(false)
   lastSyncAt      DateTime?
   settings        Json?
   pairedAt        DateTime   @default(now())
@@ -134,36 +135,36 @@ model Device {
 }
 
 model FamilyGroup {
-  id          String         @id @default(uuid())
+  id          String   @id @default(uuid())
   ownerUserId String
-  owner       User           @relation("FamilyOwner", fields: [ownerUserId], references: [id])
+  owner       User     @relation("FamilyOwner", fields: [ownerUserId], references: [id])
   name        String
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  members     FamilyMember[]
+  members FamilyMember[]
 
   @@index([ownerUserId])
   @@map("family_groups")
 }
 
 model FamilyMember {
-  id              String      @id @default(uuid())
-  familyGroupId   String
-  familyGroup     FamilyGroup @relation(fields: [familyGroupId], references: [id], onDelete: Cascade)
-  memberUserId    String
-  member          User        @relation("FamilyMemberUser", fields: [memberUserId], references: [id])
-  relationship    String
+  id               String      @id @default(uuid())
+  familyGroupId    String
+  familyGroup      FamilyGroup @relation(fields: [familyGroupId], references: [id], onDelete: Cascade)
+  memberUserId     String
+  member           User        @relation("FamilyMemberUser", fields: [memberUserId], references: [id])
+  relationship     String
   // NOTE: permissionLevel (String) is REMOVED — replaced with permissions (Json)
-  permissions     Json?       // SharePermission object; if null → default safe permissions apply
-  silentHoursStart String?    // "22:00" format
-  silentHoursEnd   String?    // "07:00" format
-  isActive        Boolean     @default(true)
-  inviteAccepted  Boolean     @default(false)
-  inviteToken     String?     @unique
-  inviteExpiresAt DateTime?   // invite token expiry (48h from creation)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  permissions      Json? // SharePermission object; if null → default safe permissions apply
+  silentHoursStart String? // "22:00" format
+  silentHoursEnd   String? // "07:00" format
+  isActive         Boolean     @default(true)
+  inviteAccepted   Boolean     @default(false)
+  inviteToken      String?     @unique
+  inviteExpiresAt  DateTime? // invite token expiry (48h from creation)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@unique([familyGroupId, memberUserId])
   @@index([memberUserId])
@@ -172,26 +173,26 @@ model FamilyMember {
 }
 
 model Product {
-  id          String     @id @default(uuid())
+  id          String      @id @default(uuid())
   name        String
-  slug        String     @unique
+  slug        String      @unique
   description String
-  deviceType  DeviceType?  // null = works with both
+  deviceType  DeviceType? // null = works with both
   category    String
   price       Float
-  stock       Int        @default(0)
+  stock       Int         @default(0)
   images      String[]
   features    String[]
   sizes       String[]
   colors      String[]
-  isActive    Boolean    @default(true)
-  isFeatured  Boolean    @default(false)
+  isActive    Boolean     @default(true)
+  isFeatured  Boolean     @default(false)
   rating      Float?
-  reviewCount Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  reviewCount Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  orderItems  OrderItem[]
+  orderItems OrderItem[]
 
   @@index([deviceType])
   @@index([category])
@@ -211,11 +212,11 @@ model Order {
   paymentMethod   String?
   trackingNumber  String?
   notes           String?
-  ringSize        String?    // for SmartRing orders
+  ringSize        String? // for SmartRing orders
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  items           OrderItem[]
+  items OrderItem[]
 
   @@index([userId])
   @@index([status])
@@ -238,17 +239,17 @@ model OrderItem {
 }
 
 model Alert {
-  id          String        @id @default(uuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  alertType   String
-  severity    AlertSeverity
-  message     String
-  metadata    Json?
-  isRead      Boolean       @default(false)
-  isAcknowledged Boolean    @default(false)
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alertType      String
+  severity       AlertSeverity
+  message        String
+  metadata       Json?
+  isRead         Boolean       @default(false)
+  isAcknowledged Boolean       @default(false)
   acknowledgedAt DateTime?
-  createdAt   DateTime      @default(now())
+  createdAt      DateTime      @default(now())
 
   @@index([userId])
   @@index([severity])
@@ -257,15 +258,15 @@ model Alert {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String
-  body      String
-  type      String
-  data      Json?
-  isRead    Boolean  @default(false)
-  sentAt    DateTime @default(now())
+  id     String   @id @default(uuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title  String
+  body   String
+  type   String
+  data   Json?
+  isRead Boolean  @default(false)
+  sentAt DateTime @default(now())
 
   @@index([userId])
   @@index([isRead])
@@ -274,12 +275,12 @@ model Notification {
 
 // Audit log — every Kafka event that was produced
 model KafkaEventLog {
-  id        String   @id @default(uuid())
-  topic     String
-  key       String?
-  payload   Json
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
+  id         String   @id @default(uuid())
+  topic      String
+  key        String?
+  payload    Json
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
   producedAt DateTime @default(now())
 
   @@index([topic])
@@ -291,25 +292,25 @@ model KafkaEventLog {
 // ── AI Coach ──────────────────────────────────────────────────────────────────
 
 model AiInsight {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category      String                    // 'sleep' | 'heart' | 'activity' | 'recovery' | 'general'
-  title         String
-  body          String
-  priority      String                    // 'high' | 'medium' | 'low'
-  iconEmoji     String
-  deepLinkRoute String?
-  actionItems   String[]
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category        String // 'sleep' | 'heart' | 'activity' | 'recovery' | 'general'
+  title           String
+  body            String
+  priority        String // 'high' | 'medium' | 'low'
+  iconEmoji       String
+  deepLinkRoute   String?
+  actionItems     String[]
   correlationNote String?
   // Snapshot of vitals used to generate this insight (for audit/debugging)
-  vitalSnapshot Json?
+  vitalSnapshot   Json?
   // Snapshot of user profile used
   profileSnapshot Json?
-  isCurrent     Boolean  @default(true)   // false when superseded by new generation
-  createdAt     DateTime @default(now())
+  isCurrent       Boolean  @default(true) // false when superseded by new generation
+  createdAt       DateTime @default(now())
 
-  interactions  AiInsightInteraction[]
+  interactions AiInsightInteraction[]
 
   @@index([userId])
   @@index([category])
@@ -318,13 +319,13 @@ model AiInsight {
 }
 
 model AiInsightInteraction {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   insightId String
   insight   AiInsight @relation(fields: [insightId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String   // 'thumbs_up' | 'thumbs_down' | 'click'
-  createdAt DateTime @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // 'thumbs_up' | 'thumbs_down' | 'click'
+  createdAt DateTime  @default(now())
 
   @@unique([insightId, userId, type])
   @@index([insightId])
@@ -333,27 +334,27 @@ model AiInsightInteraction {
 }
 
 model AiInsightCache {
-  id              String   @id @default(uuid())
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  dailyBrief      String
-  insights        Json                    // serialised AiInsight[]
-  todayActions    String[]
-  readinessMessage String
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyBrief        String
+  insights          Json // serialised AiInsight[]
+  todayActions      String[]
+  readinessMessage  String
   workoutSuggestion Json
-  generatedAt     DateTime @default(now())
-  expiresAt       DateTime               // generatedAt + 24h
+  generatedAt       DateTime @default(now())
+  expiresAt         DateTime // generatedAt + 24h
 
   @@map("ai_insight_cache")
 }
 
 model AiQuestion {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question  String
-  answer    String
-  askedAt   DateTime @default(now())
+  id       String   @id @default(uuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question String
+  answer   String
+  askedAt  DateTime @default(now())
 
   @@index([userId])
   @@map("ai_questions")
@@ -362,22 +363,22 @@ model AiQuestion {
 // ── Workout / Fitness Plan ────────────────────────────────────────────────────
 
 model WorkoutPlan {
-  id            String        @id @default(uuid())
+  id            String    @id @default(uuid())
   userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   description   String?
-  goal          String                    // 'strength' | 'endurance' | 'weight_loss' | 'general'
+  goal          String // 'strength' | 'endurance' | 'weight_loss' | 'general'
   durationWeeks Int
   startDate     DateTime
   endDate       DateTime?
-  isActive      Boolean       @default(true)
-  isAiGenerated Boolean       @default(false)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  isActive      Boolean   @default(true)
+  isAiGenerated Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  days          WorkoutDay[]
-  logs          WorkoutLog[]
+  days WorkoutDay[]
+  logs WorkoutLog[]
 
   @@index([userId])
   @@index([isActive])
@@ -385,17 +386,17 @@ model WorkoutPlan {
 }
 
 model WorkoutDay {
-  id          String        @id @default(uuid())
-  planId      String
-  plan        WorkoutPlan   @relation(fields: [planId], references: [id], onDelete: Cascade)
-  dayOfWeek   Int           // 1=Monday, 7=Sunday
-  label       String        // "Push Day", "Rest Day", "Cardio"
-  isRestDay   Boolean       @default(false)
-  notes       String?
-  sortOrder   Int           @default(0)
+  id        String      @id @default(uuid())
+  planId    String
+  plan      WorkoutPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  dayOfWeek Int // 1=Monday, 7=Sunday
+  label     String // "Push Day", "Rest Day", "Cardio"
+  isRestDay Boolean     @default(false)
+  notes     String?
+  sortOrder Int         @default(0)
 
-  exercises   WorkoutExercise[]
-  logs        WorkoutLog[]
+  exercises WorkoutExercise[]
+  logs      WorkoutLog[]
 
   @@index([planId])
   @@map("workout_days")
@@ -422,9 +423,9 @@ model WorkoutExercise {
 model Exercise {
   id          String   @id @default(uuid())
   name        String
-  category    String   // 'strength' | 'cardio' | 'flexibility' | 'balance'
-  muscleGroup String?  // 'chest' | 'back' | 'legs' | 'shoulders' | 'arms' | 'core'
-  equipment   String?  // 'barbell' | 'dumbbell' | 'bodyweight' | 'machine' | 'cable'
+  category    String // 'strength' | 'cardio' | 'flexibility' | 'balance'
+  muscleGroup String? // 'chest' | 'back' | 'legs' | 'shoulders' | 'arms' | 'core'
+  equipment   String? // 'barbell' | 'dumbbell' | 'bodyweight' | 'machine' | 'cable'
   description String?
   videoUrl    String?
   isCustom    Boolean  @default(false)
@@ -438,24 +439,24 @@ model Exercise {
 }
 
 model WorkoutLog {
-  id               String      @id @default(uuid())
-  planId           String
-  plan             WorkoutPlan @relation(fields: [planId], references: [id])
-  dayId            String
-  day              WorkoutDay  @relation(fields: [dayId], references: [id])
-  userId           String
-  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date             DateTime
-  completed        Boolean     @default(true)
-  durationMinutes  Int?
-  perceivedEffort  Float?      // 1–10 RPE
-  notes            String?
-  avgHeartRate     Float?
-  peakHeartRate    Float?
-  caloriesBurned   Float?
-  strain           Float?      // band-specific
-  exerciseLogs     Json?       // array of { exerciseId, sets: [{reps, weightKg, completed}] }
-  createdAt        DateTime    @default(now())
+  id              String      @id @default(uuid())
+  planId          String
+  plan            WorkoutPlan @relation(fields: [planId], references: [id])
+  dayId           String
+  day             WorkoutDay  @relation(fields: [dayId], references: [id])
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  completed       Boolean     @default(true)
+  durationMinutes Int?
+  perceivedEffort Float? // 1–10 RPE
+  notes           String?
+  avgHeartRate    Float?
+  peakHeartRate   Float?
+  caloriesBurned  Float?
+  strain          Float? // band-specific
+  exerciseLogs    Json? // array of { exerciseId, sets: [{reps, weightKg, completed}] }
+  createdAt       DateTime    @default(now())
 
   @@index([userId])
   @@index([planId])
@@ -466,23 +467,23 @@ model WorkoutLog {
 // ── Meditation ────────────────────────────────────────────────────────────────
 
 model MeditationSession {
-  id              String   @id @default(uuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  patternId       String                   // 'box' | '478' | 'wim_hof' | 'co2_tolerance' | 'custom'
-  patternName     String
-  category        String                   // 'relaxation' | 'energising' | 'focus' | 'breath_hold'
-  durationSeconds Int                      // actual session length
-  cyclesCompleted Int
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  patternId         String // 'box' | '478' | 'wim_hof' | 'co2_tolerance' | 'custom'
+  patternName       String
+  category          String // 'relaxation' | 'energising' | 'focus' | 'breath_hold'
+  durationSeconds   Int // actual session length
+  cyclesCompleted   Int
   // HRV before/after (if device connected)
-  hrvBefore       Float?
-  hrvAfter        Float?
-  hrvDelta        Float?                   // positive = improved
+  hrvBefore         Float?
+  hrvAfter          Float?
+  hrvDelta          Float? // positive = improved
   // Breath hold specific
-  breathHoldSeconds Int?                   // max hold time in this session
-  breathHoldCount   Int?                   // how many holds in Wim Hof
-  notes           String?
-  completedAt     DateTime @default(now())
+  breathHoldSeconds Int? // max hold time in this session
+  breathHoldCount   Int? // how many holds in Wim Hof
+  notes             String?
+  completedAt       DateTime @default(now())
 
   @@index([userId])
   @@index([completedAt])
@@ -492,19 +493,19 @@ model MeditationSession {
 // ── Broadcast ─────────────────────────────────────────────────────────────────
 
 model BroadcastMessage {
-  id            String   @id @default(uuid())
-  title         String
-  body          String
-  imageUrl      String?
-  type          String   @default("info")  // 'info' | 'warning' | 'update' | 'maintenance'
-  isDismissable Boolean  @default(true)
-  actionLabel   String?
-  actionUrl     String?
-  targetSegment String   @default("all")  // 'all' | 'ring_users' | 'band_users'
-  sentAt        DateTime @default(now())
-  sentByAdminId String
-  sentByAdmin   User     @relation(fields: [sentByAdminId], references: [id])
-  recipientCount Int     @default(0)      // populated after dispatch
+  id             String   @id @default(uuid())
+  title          String
+  body           String
+  imageUrl       String?
+  type           String   @default("info") // 'info' | 'warning' | 'update' | 'maintenance'
+  isDismissable  Boolean  @default(true)
+  actionLabel    String?
+  actionUrl      String?
+  targetSegment  String   @default("all") // 'all' | 'ring_users' | 'band_users'
+  sentAt         DateTime @default(now())
+  sentByAdminId  String
+  sentByAdmin    User     @relation(fields: [sentByAdminId], references: [id])
+  recipientCount Int      @default(0) // populated after dispatch
 
   @@index([sentAt])
   @@map("broadcast_messages")
@@ -515,8 +516,8 @@ model BroadcastMessage {
 model FirmwareVersion {
   id           String     @id @default(uuid())
   deviceType   DeviceType
-  version      String     // "2.1.5"
-  s3Key        String     // path in S3 bucket
+  version      String // "2.1.5"
+  s3Key        String // path in S3 bucket
   releaseNotes String
   isLatest     Boolean    @default(true)
   releasedAt   DateTime   @default(now())
@@ -528,16 +529,16 @@ model FirmwareVersion {
 // ── Support ──────────────────────────────────────────────────────────────────
 
 model SupportTicket {
-  id          String       @id @default(uuid())
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subject     String
-  status      TicketStatus @default(OPEN)
-  priority    String       @default("medium") // 'low' | 'medium' | 'high' | 'urgent'
-  category    String       // 'technical' | 'billing' | 'general' | 'device'
-  messages    Json         // Array of { sender: 'user' | 'admin', text: string, timestamp: string }
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  status    TicketStatus @default(OPEN)
+  priority  String       @default("medium") // 'low' | 'medium' | 'high' | 'urgent'
+  category  String // 'technical' | 'billing' | 'general' | 'device'
+  messages  Json // Array of { sender: 'user' | 'admin', text: string, timestamp: string }
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 
   @@index([userId])
   @@index([status])

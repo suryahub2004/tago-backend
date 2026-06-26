@@ -59,6 +59,12 @@ let DevicesController = class DevicesController {
     updateBySerial(serial, dto, user) {
         return this.devicesService.updateBySerial(serial, user.id, dto);
     }
+    adminUnpairDevice(deviceId) {
+        return this.devicesService.adminUnpairDevice(deviceId);
+    }
+    adminQueueFirmwareUpdate(deviceId) {
+        return this.devicesService.adminQueueFirmwareUpdate(deviceId);
+    }
     getAdminDevicesAnalytics() {
         return this.devicesService.getAdminDevicesAnalytics();
     }
@@ -145,6 +151,22 @@ __decorate([
     __metadata("design:paramtypes", [String, update_device_by_serial_dto_1.UpdateDeviceBySerialDto, Object]),
     __metadata("design:returntype", void 0)
 ], DevicesController.prototype, "updateBySerial", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN),
+    (0, common_1.Delete)('admin/:id/unpair'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], DevicesController.prototype, "adminUnpairDevice", null);
+__decorate([
+    (0, roles_decorator_1.Roles)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN),
+    (0, common_1.Post)('admin/:id/firmware-update'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], DevicesController.prototype, "adminQueueFirmwareUpdate", null);
 __decorate([
     (0, roles_decorator_1.Roles)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN),
     (0, common_1.Get)('admin/analytics'),

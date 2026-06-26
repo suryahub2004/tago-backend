@@ -97,8 +97,8 @@ export declare class ShopController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
-        totalAmount: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        totalAmount: number;
         discountAmount: number;
         promoCode: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -144,8 +144,8 @@ export declare class ShopController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
-        totalAmount: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        totalAmount: number;
         discountAmount: number;
         promoCode: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -191,8 +191,8 @@ export declare class ShopController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
-        totalAmount: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        totalAmount: number;
         discountAmount: number;
         promoCode: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -214,8 +214,8 @@ export declare class ShopController {
             createdAt: Date;
             updatedAt: Date;
             userId: string;
-            totalAmount: number;
             status: import(".prisma/client").$Enums.OrderStatus;
+            totalAmount: number;
             discountAmount: number;
             promoCode: string | null;
             shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -271,8 +271,8 @@ export declare class ShopController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
-        totalAmount: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        totalAmount: number;
         discountAmount: number;
         promoCode: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;
@@ -287,8 +287,8 @@ export declare class ShopController {
         createdAt: Date;
         updatedAt: Date;
         userId: string;
-        totalAmount: number;
         status: import(".prisma/client").$Enums.OrderStatus;
+        totalAmount: number;
         discountAmount: number;
         promoCode: string | null;
         shippingAddress: import("@prisma/client/runtime/library").JsonValue;

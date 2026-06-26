@@ -300,7 +300,7 @@ let AdminService = class AdminService {
         const header = 'deviceId,serial,type,userName,userEmail,firmware,battery,isActive,lastSyncAt\n';
         const rows = devices.map(d => [
             d.id, d.deviceSerial, d.deviceType,
-            d.user.name, d.user.email,
+            d.user?.name ?? 'Unpaired', d.user?.email ?? 'N/A',
             d.firmwareVersion ?? '', d.batteryLevel ?? '',
             d.isActive, d.lastSyncAt?.toISOString() ?? '',
         ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
